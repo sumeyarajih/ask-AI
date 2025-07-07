@@ -1,5 +1,5 @@
+import 'package:ask_ai/splash.dart';
 import 'package:flutter/material.dart';
-import 'chat_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
           elevation: 0,
         ),
       ),
-      home: const ChatScreen(),
+      home: const SplashScreen(), // Changed from ChatScreen to SplashScreen
     );
   }
 }

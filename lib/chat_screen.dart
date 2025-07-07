@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bubble/chat_bubble.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'message.dart';
-import 'ai_service.dart';
+import 'models/message.dart';
+import 'services/ai_service.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -81,7 +81,7 @@ class _ChatScreenState extends State<ChatScreen> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         title: Text(
-          'AI Assistant',
+          ' ASK AI',
           style: GoogleFonts.poppins(
             color: Colors.white,
             fontWeight: FontWeight.bold,
