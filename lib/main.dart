@@ -1,4 +1,5 @@
-import 'package:ask_ai/splash.dart';
+import 'package:ask_ai/screens/splash_screen.dart';
+import 'package:ask_ai/utils/app_theme.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -10,17 +11,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'AI Chat',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: Colors.black,
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF8B0000),
-          elevation: 0,
-        ),
-      ),
-      home: const SplashScreen(), // Changed from ChatScreen to SplashScreen
+    return AnimatedBuilder(
+      animation: ThemeNotifier(),
+      builder: (context, _) {
+        return MaterialApp(
+          title: 'AI Chat',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: ThemeNotifier().themeMode,
+          home: const SplashScreen(),
+        );
+      },
     );
   }
 }
