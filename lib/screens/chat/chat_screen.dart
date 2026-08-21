@@ -7,6 +7,7 @@ import '../../services/auth_service.dart';
 import '../../utils/app_theme.dart';
 import '../../widgets/side_menu.dart';
 import '../../models/chat_session.dart';
+import '../profile/profile_screen.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -23,6 +24,7 @@ class _ChatScreenState extends State<ChatScreen> {
   
   ChatSession? _currentSession;
   String? _selectedDocumentName;
+  String _selectedMode = 'chat'; // AI mode state
 
   @override
   void initState() {
@@ -133,12 +135,45 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text(
-          _currentSession?.title ?? 'ASK AI',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
+        title: DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+            value: _selectedMode,
+            icon: Icon(Icons.arrow_drop_down, color: AppTheme.textWhite),
+            dropdownColor: theme.colorScheme.surface,
+            onChanged: (String? newValue) {
+              if (newValue != null) {
+                setState(() => _selectedMode = newValue);
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text("Switched to ${newValue.toUpperCase()} Mode", style: GoogleFonts.poppins()),
+                  backgroundColor: AppTheme.darkRed,
+                  duration: const Duration(seconds: 1),
+                ));
+              }
+            },
+            items: [
+              DropdownMenuItem(value: 'chat', child: Text('💬 General Chat', style: GoogleFonts.poppins(color: AppTheme.textWhite, fontWeight: FontWeight.bold))),
+              DropdownMenuItem(value: 'study', child: Text('📚 AI Study Mode', style: GoogleFonts.poppins(color: AppTheme.textWhite, fontWeight: FontWeight.bold))),
+              DropdownMenuItem(value: 'coding', child: Text('💻 Coding Assistant', style: GoogleFonts.poppins(color: AppTheme.textWhite, fontWeight: FontWeight.bold))),
+              DropdownMenuItem(value: 'web', child: Text('🔎 Web Search', style: GoogleFonts.poppins(color: AppTheme.textWhite, fontWeight: FontWeight.bold))),
+              DropdownMenuItem(value: 'workspace', child: Text('📝 AI Workspace', style: GoogleFonts.poppins(color: AppTheme.textWhite, fontWeight: FontWeight.bold))),
+            ],
           ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.person_outline, color: AppTheme.textWhite),
+            tooltip: 'Profile',
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const ProfileScreen())),
+          ),
+          if (_currentSession != null)
+            Padding(
+              padding: const EdgeInsets.only(right: 16.0),
+              child: Center(
+                child: Text('History', style: GoogleFonts.poppins(color: Colors.white70, fontSize: 12)),
+              ),
+            )
+        ],
       ),
       drawer: SideMenu(onSessionSelected: _onSessionSelected),
       body: Column(
@@ -261,7 +296,36 @@ class _ChatScreenState extends State<ChatScreen> {
                 'AI is typing...',
                 style: GoogleFonts.poppins(color: theme.iconTheme.color, fontSize: 10, fontStyle: FontStyle.italic),
               ),
-            )
+            ),
+          if (!message.isUser && !message.isStreaming) // Actions row for AI payload
+            Padding(
+              padding: const EdgeInsets.only(top: 4.0, left: 8.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.content_copy, size: 16, color: theme.iconTheme.color?.withValues(alpha: 0.6)),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    onPressed: () {},
+                  ),
+                  const SizedBox(width: 12),
+                  IconButton(
+                    icon: Icon(Icons.refresh, size: 16, color: theme.iconTheme.color?.withValues(alpha: 0.6)),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    onPressed: () {},
+                  ),
+                  const SizedBox(width: 12),
+                  IconButton(
+                    icon: Icon(Icons.bookmark_border, size: 16, color: theme.iconTheme.color?.withValues(alpha: 0.6)),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    onPressed: () {},
+                  ),
+                ],
+              ),
+            ),
         ],
       ),
     );
@@ -335,6 +399,15 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
           const SizedBox(width: 8),
+          IconButton( // VOICE MICROPHONE BUTTON
+            icon: Icon(Icons.mic, color: theme.iconTheme.color),
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text("Voice AI recording mock started...", style: GoogleFonts.poppins()),
+                backgroundColor: AppTheme.darkRed,
+              ));
+            },
+          ),
           Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,

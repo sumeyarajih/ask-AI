@@ -137,6 +137,35 @@ class _SideMenuState extends State<SideMenu> {
               ],
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: TextField(
+              style: GoogleFonts.poppins(color: theme.textTheme.bodyLarge?.color, fontSize: 13),
+              decoration: InputDecoration(
+                hintText: 'Search conversations...',
+                hintStyle: GoogleFonts.poppins(color: theme.iconTheme.color, fontSize: 13),
+                prefixIcon: Icon(Icons.search, color: theme.iconTheme.color, size: 20),
+                filled: true,
+                fillColor: theme.brightness == Brightness.dark ? AppTheme.mediumGray : AppTheme.lightGray,
+                contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              onChanged: (text) {
+                // Mock search logic
+              },
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.bookmark, color: AppTheme.darkRed),
+            title: Text("Saved & Favorites", style: GoogleFonts.poppins(color: theme.textTheme.bodyLarge?.color, fontWeight: FontWeight.bold)),
+            onTap: () {
+              // Mock navigation to favorites
+            },
+          ),
+          const Divider(),
           Expanded(
             child: _isLoading 
                 ? const Center(child: CircularProgressIndicator(color: AppTheme.darkRed))

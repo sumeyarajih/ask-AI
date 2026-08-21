@@ -6,6 +6,7 @@ import '../../services/auth_service.dart';
 import '../chat/chat_screen.dart';
 import 'signup_screen.dart';
 import '../../widgets/social_button.dart';
+import 'forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -93,7 +94,19 @@ class _LoginScreenState extends State<LoginScreen> {
                 prefixIcon: Icons.lock_outline,
                 isPassword: true,
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerRight,
+                child: GestureDetector(
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const ForgotPasswordScreen())),
+                  child: Text(
+                    "Forgot Password?",
+                    style: GoogleFonts.poppins(color: AppTheme.darkRed, fontSize: 13, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 32),
               _isLoading 
                   ? const Center(child: CircularProgressIndicator(color: AppTheme.darkRed))
                   : ElevatedButton(
