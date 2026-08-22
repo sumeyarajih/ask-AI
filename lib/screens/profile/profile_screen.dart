@@ -25,7 +25,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final name = _auth.userName;
+    final name = _auth.currentUser?.fullName ?? _auth.userName;
+    final email = _auth.currentUser?.email ?? "Free Plan";
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -74,7 +75,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               name,
               style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.bold, color: theme.textTheme.bodyLarge?.color),
             ),
-            Text('Free Plan', style: GoogleFonts.poppins(fontSize: 13, color: AppTheme.textGrey)),
+            Text(email, style: GoogleFonts.poppins(fontSize: 13, color: AppTheme.textGrey)),
             const SizedBox(height: 8),
             OutlinedButton.icon(
               onPressed: () {},
@@ -99,8 +100,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 28),
             // Settings Tiles
             _sectionTitle('Account', theme),
-            _tile(context, Icons.person_outline, 'Edit Profile', theme, onTap: () {}),
-            _tile(context, Icons.lock_outline, 'Change Password', theme, onTap: () {}),
+            _tile(context, Icons.person_outline, 'Edit Profile', theme, onTap: () => _showEditProfileDialog(context)),
+            _tile(context, Icons.lock_outline, 'Change Password', theme, onTap: () => _showChangePasswordDialog(context)),
             _tile(context, Icons.memory, 'AI Memory Settings', theme, onTap: () {}),
             const SizedBox(height: 12),
             _sectionTitle('Preferences', theme),
@@ -108,6 +109,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _tile(context, Icons.bar_chart, 'My Dashboard', theme, onTap: () {}),
             const SizedBox(height: 12),
             _sectionTitle('Danger Zone', theme),
+            _tile(context, Icons.delete_forever, 'Delete Account', theme, isRed: true, onTap: () => _showDeleteAccountDialog(context)),
             _tile(context, Icons.logout, 'Log Out', theme, isRed: true, onTap: () async {
               await _auth.logout();
               if (context.mounted) {
@@ -205,6 +207,99 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showEditProfileDialog(BuildContext context) {
+    final controller = TextEditingController(text: _auth.currentUser?.fullName);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Edit Profile Name', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 18)),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(labelText: 'Full Name'),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () async {
+              try {
+                await _auth.updateName(controller.text);
+                setState(() {});
+                if (mounted) Navigator.pop(ctx);
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.darkRed),
+            child: const Text('Save', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showChangePasswordDialog(BuildContext context) {
+    final currentController = TextEditingController();
+    final newController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Change Password', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 18)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(controller: currentController, decoration: const InputDecoration(labelText: 'Current Password'), obscureText: true),
+            TextField(controller: newController, decoration: const InputDecoration(labelText: 'New Password'), obscureText: true),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () async {
+              try {
+                await _auth.changePassword(currentController.text, newController.text);
+                if (mounted) {
+                  Navigator.pop(ctx);
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Password updated successfully.')));
+                }
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))));
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.darkRed),
+            child: const Text('Confirm', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteAccountDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Delete Account', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.red)),
+        content: const Text('Are you sure you want to permanently delete your account? This action cannot be undone and all data will be lost.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () async {
+              try {
+                await _auth.deleteAccount();
+                if (mounted) {
+                  Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const LoginScreen()), (r) => false);
+                }
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))));
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Delete', style: TextStyle(color: Colors.white)),
+          ),
+        ],
       ),
     );
   }

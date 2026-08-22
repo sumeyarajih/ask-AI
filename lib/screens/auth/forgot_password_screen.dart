@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../utils/app_theme.dart';
 import '../../widgets/custom_text_field.dart';
+import '../../api/auth_api.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({Key? key}) : super(key: key);
@@ -18,11 +19,26 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Future<void> _handleReset() async {
     if (_emailController.text.trim().isEmpty) return;
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(seconds: 2)); // Mock API call
-    setState(() {
-      _isLoading = false;
-      _emailSent = true;
-    });
+    
+    try {
+      await AuthApi().forgotPassword(_emailController.text.trim());
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _emailSent = true;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceAll('Exception: ', ''), style: GoogleFonts.poppins()),
+            backgroundColor: AppTheme.darkerRed,
+          ),
+        );
+      }
+    }
   }
 
   @override

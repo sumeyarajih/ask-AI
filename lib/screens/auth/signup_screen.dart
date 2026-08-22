@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../utils/app_theme.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../services/auth_service.dart';
-import '../chat/chat_screen.dart';
+import 'login_screen.dart';
 import '../../widgets/social_button.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -21,14 +21,27 @@ class _SignupScreenState extends State<SignupScreen> {
 
   Future<void> _handleSignup() async {
     setState(() => _isLoading = true);
-    bool success = await AuthService().signup(_nameController.text, _emailController.text, _passwordController.text);
-    setState(() => _isLoading = false);
-
-    if (success && mounted) {
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const ChatScreen()),
-        (route) => false,
-      );
+    try {
+      await AuthService().signup(_nameController.text, _emailController.text, _passwordController.text);
+      if (mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (route) => false,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceAll('Exception: ', ''), style: GoogleFonts.poppins()),
+            backgroundColor: AppTheme.darkerRed,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 

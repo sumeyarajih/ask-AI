@@ -22,21 +22,26 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _handleLogin() async {
     setState(() => _isLoading = true);
-    bool success = await AuthService().login(_emailController.text, _passwordController.text);
-    setState(() => _isLoading = false);
-
-    if (success && mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const ChatScreen()),
-      );
-    } else {
+    try {
+      await AuthService().login(_emailController.text, _passwordController.text);
+      if (mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const ChatScreen()),
+          (route) => false,
+        );
+      }
+    } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Login Failed. Please check your credentials.", style: GoogleFonts.poppins()),
+            content: Text(e.toString().replaceAll('Exception: ', ''), style: GoogleFonts.poppins()),
             backgroundColor: AppTheme.darkerRed,
           ),
         );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
       }
     }
   }

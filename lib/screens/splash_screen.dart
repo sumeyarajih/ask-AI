@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'auth/login_screen.dart';
+import '../services/auth_service.dart';
+import 'chat/chat_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -12,12 +14,27 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // Navigate to LoginScreen after 3 seconds
-    Future.delayed(const Duration(seconds: 3), () {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-      );
-    });
+    _initApp();
+  }
+
+  Future<void> _initApp() async {
+    // Wait for auth initialization and a minimum splash delay (2 seconds)
+    await Future.wait([
+      AuthService().init(),
+      Future.delayed(const Duration(seconds: 2)),
+    ]);
+    
+    if (mounted) {
+      if (AuthService().isAuthenticated) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const ChatScreen()),
+        );
+      } else {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+        );
+      }
+    }
   }
 
   @override

@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 
 /// Skeleton API Client for backend integration
 class ApiClient {
-  static const String baseUrl = 'https://api.yourdomain.com'; // Replace with backend URL
+  static const String baseUrl = 'http://192.168.1.44:8000';
   
   // Singleton pattern route
   static final ApiClient _instance = ApiClient._internal();
